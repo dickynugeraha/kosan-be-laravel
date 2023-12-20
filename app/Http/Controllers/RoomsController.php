@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Rooms;
+use App\Http\Controllers\BaseController as BaseController;
 use App\Http\Requests\StoreRoomsRequest;
 use App\Http\Requests\UpdateRoomsRequest;
 
-class RoomsController extends Controller
+class RoomsController extends BaseController
 {
     /**
      * Display a listing of the resource.
@@ -15,7 +16,9 @@ class RoomsController extends Controller
      */
     public function index()
     {
-        //
+        $rooms = Rooms::all();
+
+        return $this->sendResponse($rooms, "Successfully get all rooms");
     }
 
     /**
