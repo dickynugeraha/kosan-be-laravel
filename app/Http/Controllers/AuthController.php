@@ -16,6 +16,19 @@ class AuthController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
+    public function index()
+    {
+        $users = User::all();
+
+        return $users;
+        // return $this->sendResponse($users, "Successfully get all customers");
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -34,7 +47,6 @@ class AuthController extends BaseController
         $input = $request->all();
         $input["password"] = Hash::make($input["password"]);
         $newUser = User::create($input);
-        $success["token"] = $newUser->createToken("KosanMakIda")->plainTextToken;
         $success["user_id"] = $newUser->id;
 
         return $this->sendResponse($success, "Successfully create new user");
@@ -44,7 +56,7 @@ class AuthController extends BaseController
     {
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             $user = Auth::user();
-            $success['token'] =  $user->createToken("KosanMakIda")->plainTextToken;
+            $success["token"] = $user->createToken("KosanMakIda")->accessToken;
             $success['user_id'] =  $user->id;
 
             return $this->sendResponse($success, 'User login successfully.');
