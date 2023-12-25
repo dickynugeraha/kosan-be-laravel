@@ -20,8 +20,8 @@ class AuthController extends BaseController
     {
         $users = User::all();
 
-        return $users;
-        // return $this->sendResponse($users, "Successfully get all customers");
+        // return $users;
+        return $this->sendResponse($users, "Successfully get all customers");
     }
 
     /**
@@ -54,15 +54,28 @@ class AuthController extends BaseController
 
     public function loginUser(Request $request)
     {
-        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-            $user = Auth::user();
-            $success["token"] = $user->createToken("KosanMakIda")->accessToken;
-            $success['user_id'] =  $user->id;
+        $user = User::where("email", "=", $request->email)->first();
 
-            return $this->sendResponse($success, 'User login successfully.');
-        } else {
-            return $this->sendError('Unauthorised.', ['error' => 'Unauthorised']);
+        if (!$user || $user === null) {
+            return $this->sendError('Unauthorised.', ['error' => 'User not found']);
         }
+        if ($user && !Hash::check($request->password, $user["password"])) {
+            return $this->sendError('Unauthorised.', ['error' => 'Invalid password']);
+        }
+
+        $success["token"] = $user->createToken("KosanMakIda")->plainTextToken;
+        $success['user_id'] =  $user->id;
+
+        return $this->sendResponse($success, 'User login successfully.');
+        // if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+        //     $user = Auth::user();
+        //     $success["token"] = $user->createToken("KosanMakIda")->accessToken;
+        //     $success['user_id'] =  $user->id;
+
+        //     return $this->sendResponse($success, 'User login successfully.');
+        // } else {
+        //     return $this->sendError('Unauthorised.', ['error' => 'Unauthorised']);
+        // }
     }
 
     /**
@@ -73,7 +86,6 @@ class AuthController extends BaseController
      */
     public function store(Request $request)
     {
-        //
     }
 
     /**
@@ -84,7 +96,7 @@ class AuthController extends BaseController
      */
     public function show(User $user)
     {
-        //
+        return $this->sendResponse($user, "Successfully get single user");
     }
 
     /**

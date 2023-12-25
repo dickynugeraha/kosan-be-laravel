@@ -19,6 +19,7 @@ return new class extends Migration
             $table->double("price");
             $table->string("status");
             $table->string("description");
+            $table->string("photos");
             $table->timestamps();
         });
     }

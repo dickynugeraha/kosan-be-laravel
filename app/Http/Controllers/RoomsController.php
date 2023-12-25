@@ -39,7 +39,33 @@ class RoomsController extends BaseController
      */
     public function store(StoreRoomsRequest $request)
     {
-        //
+        $input = $request->all();
+        try {
+            $imageNames = "";
+
+            $photos = $request->file('file');
+
+            foreach ($photos as $photo) {
+                $photoName = trim($photo->getClientOriginalName());
+                $photo_name = $photoName . "_" . time() . "." . $photo->getClientOriginalExtension();
+                $destinationPath = public_path('/uploads/room_images');
+                $photo->move($destinationPath, $photo_name);
+
+                $imageNames = $imageNames . "|" . $photo_name;
+            }
+
+            $room =  Rooms::create([
+                "number_room" => $input["number_room"],
+                "price" => $input["price"],
+                "description" => $input["description"],
+                "status" => $input["status"],
+                "photos" =>  $imageNames,
+            ]);
+
+            return $this->sendResponse($room, "Success add room");
+        } catch (\Exception $e) {
+            return $this->sendError($e, "Failed add room");
+        }
     }
 
     /**

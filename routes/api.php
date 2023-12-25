@@ -16,11 +16,12 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get("all-room", [RoomsController::class, "index"]);
 Route::post("register", [AuthController::class, "register"]);
 Route::post("login-user", [AuthController::class, "loginUser"]);
 Route::post("login-admin", [AuthController::class, "loginAdmin"]);
 
-Route::middleware('auth:api')->group(function () {
-    Route::resource('rooms', RoomsController::class);
-    Route::get("users", [AuthController::class]);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::resource("users", AuthController::class);
+    Route::resource("rooms", RoomsController::class);
 });
