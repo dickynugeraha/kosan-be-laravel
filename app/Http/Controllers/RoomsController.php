@@ -17,8 +17,21 @@ class RoomsController extends BaseController
     public function index()
     {
         $rooms = Rooms::all();
+        $temp = array();
 
-        return $this->sendResponse($rooms, "Successfully get all rooms");
+        foreach ($rooms as $room) {
+            $arrPhotos = explode("|", $room["photos"]);
+
+            array_push($temp, [
+                "number_room" => $room["number_room"],
+                "price" => $room["price"],
+                "description" => $room["description"],
+                "status" => $room["status"],
+                "photos" => $arrPhotos,
+            ]);
+        }
+
+        return $this->sendResponse($temp, "Successfully get all rooms");
     }
 
     /**
@@ -110,6 +123,11 @@ class RoomsController extends BaseController
      */
     public function destroy(Rooms $rooms)
     {
-        //
+        try {
+            $rooms->delete();
+            return $this->sendResponse($rooms, "Successfully deleted room");
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), "Failed delete room");
+        }
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\BaseController as BaseController;
 use App\Models\User;
+use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -67,15 +68,22 @@ class AuthController extends BaseController
         $success['user_id'] =  $user->id;
 
         return $this->sendResponse($success, 'User login successfully.');
-        // if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-        //     $user = Auth::user();
-        //     $success["token"] = $user->createToken("KosanMakIda")->accessToken;
-        //     $success['user_id'] =  $user->id;
+    }
 
-        //     return $this->sendResponse($success, 'User login successfully.');
-        // } else {
-        //     return $this->sendError('Unauthorised.', ['error' => 'Unauthorised']);
-        // }
+    public function loginAdmin(Request $request)
+    {
+        $admin = Admin::where("email", "=", $request->email)->first();
+
+        if (!$admin || $admin === null) {
+            return $this->sendError("Unauthorised", "Admin not found");
+        }
+        if ($admin !== null && !Hash::check($request->password, $admin["password"])) {
+            return $this->sendError("Unauthorised", "Password wrong");
+        }
+        $success["token"] = $admin->createToken("KosanMakIda")->plainTextToken;
+        $success['admin_id'] =  $admin->id;
+
+        return $this->sendResponse($success, "Login successfully");
     }
 
     /**
