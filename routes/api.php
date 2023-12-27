@@ -23,5 +23,5 @@ Route::post("login-admin", [AuthController::class, "loginAdmin"]);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::resource("users", AuthController::class);
-    Route::resource("rooms", RoomsController::class);
+    Route::apiResource("rooms", RoomsController::class);
 });

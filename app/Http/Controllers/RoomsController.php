@@ -23,6 +23,7 @@ class RoomsController extends BaseController
             $arrPhotos = explode("|", $room["photos"]);
 
             array_push($temp, [
+                "id" => $room["id"],
                 "number_room" => $room["number_room"],
                 "price" => $room["price"],
                 "description" => $room["description"],
@@ -121,11 +122,11 @@ class RoomsController extends BaseController
      * @param  \App\Models\Rooms  $rooms
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Rooms $rooms)
+    public function destroy(Rooms $room)
     {
         try {
-            $rooms->delete();
-            return $this->sendResponse($rooms, "Successfully deleted room");
+            $room->delete();
+            return $this->sendResponse($room, "Successfully deleted room");
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), "Failed delete room");
         }
