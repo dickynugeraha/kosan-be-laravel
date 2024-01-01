@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\OrdersController;
 use App\Http\Controllers\RoomsController;
+use App\Models\Orders;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -23,5 +25,7 @@ Route::post("login-admin", [AuthController::class, "loginAdmin"]);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::resource("users", AuthController::class);
-    Route::apiResource("rooms", RoomsController::class);
+    Route::resource("rooms", RoomsController::class);
+    Route::resource("orders", OrdersController::class);
+    Route::get("orders/need-payment/{userId}", [OrdersController::class, "userOrderByWaitingPayment"]);
 });

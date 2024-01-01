@@ -17,4 +17,9 @@ class Rooms extends Model
         "description",
         "photos",
     ];
+
+    public function order()
+    {
+        return $this->hasOne(Orders::class);
+    }
 }

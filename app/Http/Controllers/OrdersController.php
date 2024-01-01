@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Orders;
 use App\Http\Requests\StoreOrdersRequest;
 use App\Http\Requests\UpdateOrdersRequest;
+use App\Http\Controllers\BaseController as BaseController;
+use App\Models\Rooms;
+use Illuminate\Support\Facades\Request;
 
-class OrdersController extends Controller
+class OrdersController extends BaseController
 {
     /**
      * Display a listing of the resource.
@@ -16,6 +19,16 @@ class OrdersController extends Controller
     public function index()
     {
         //
+    }
+
+    public function userOrderByWaitingPayment(String $userId)
+    {
+        try {
+            $order = Orders::where("user_id", "=", $userId)->where("status", "=", "waiting_payment")->with("room")->first();
+            return $this->sendResponse($order, "Succesfully get user order");
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), "Failed get user order");
+        }
     }
 
     /**
@@ -36,7 +49,19 @@ class OrdersController extends Controller
      */
     public function store(StoreOrdersRequest $request)
     {
-        //
+        $input = $request->all();
+
+        try {
+            $newOrder = Orders::create($input);
+
+            $room = Rooms::where("id", "=", $input["room_id"])->first();
+            $room->status = "need_payment";
+            $room->save();
+
+            return $this->sendResponse($newOrder, "Successfully added order");
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), "Failed added order");
+        }
     }
 
     /**
