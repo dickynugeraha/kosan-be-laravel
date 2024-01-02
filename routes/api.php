@@ -28,4 +28,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::resource("rooms", RoomsController::class);
     Route::resource("orders", OrdersController::class);
     Route::get("orders/need-payment/{userId}", [OrdersController::class, "userOrderByWaitingPayment"]);
+    Route::post("orders/update-payment", [OrdersController::class, "updatePayment"]);
+    Route::get("orders/user/{userId}", [OrdersController::class, "getOrdersByUser"]);
 });

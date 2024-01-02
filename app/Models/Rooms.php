@@ -20,6 +20,6 @@ class Rooms extends Model
 
     public function order()
     {
-        return $this->hasOne(Orders::class);
+        return $this->hasMany(Orders::class);
     }
 }
