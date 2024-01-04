@@ -6,6 +6,7 @@ use App\Models\Rooms;
 use App\Http\Controllers\BaseController as BaseController;
 use App\Http\Requests\StoreRoomsRequest;
 use App\Http\Requests\UpdateRoomsRequest;
+use Illuminate\Http\Request;
 
 class RoomsController extends BaseController
 {
@@ -111,9 +112,45 @@ class RoomsController extends BaseController
      * @param  \App\Models\Rooms  $rooms
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateRoomsRequest $request, Rooms $rooms)
+    public function update(Request $request, Rooms $room)
     {
-        //
+        $input = $request->all();
+
+        $imageNewNames = "";
+        return $this->sendResponse($request->all(), "Success update room");
+
+        try {
+
+            if ($input["isUpdatePhotos"] ){
+                $photos = $request->file('file');
+
+                foreach ($photos as $photo) {
+                    $photoName = trim($photo->getClientOriginalName());
+                    $photo_name = $photoName . "_" . time() . "." . $photo->getClientOriginalExtension();
+                    $destinationPath = public_path('/uploads/room_images');
+                    $photo->move($destinationPath, $photo_name);
+    
+                    $imageNewNames = $imageNewNames . "|" . $photo_name;
+                }
+
+                $oldPhotos = explode("|", $room->photo_transfer);
+
+                foreach ($oldPhotos as $photo) {
+                    $image = public_path('uploads/room_images/') . $photo;
+                    if (file_exists($image)) @unlink($image);
+                }
+            } else {
+                $imageNewNames = $room->photo_transfer;
+            }
+            $input["photo_transfer"] = $imageNewNames;
+
+            $room->update($input);
+
+            return $this->sendResponse($room, "Success update room");
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), "Failed update room");
+
+        }
     }
 
     /**
