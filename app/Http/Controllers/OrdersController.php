@@ -21,6 +21,15 @@ class OrdersController extends BaseController
         //
     }
 
+    public function getOrdersByStatus(String $status){
+        try {
+            $orders = Orders::where("status", "=", $status)->with(["room", "user"])->orderBy("created_at", "DESC")->get();
+            return $this->sendResponse($orders, "Successfully get order by status ".$status);
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), "Failed fetch orders");
+        }
+    } 
+
     public function getOrdersByUser(String $userId)
     {
         try {
@@ -44,6 +53,10 @@ class OrdersController extends BaseController
             $destinationPath = public_path('/uploads/payment_images');
             $photo->move($destinationPath, $photo_name);
 
+            $room = Rooms::where("room_id", "=", $order->room_id)->first();
+            $room->status = "waiting_approval";
+            $room->save();
+            
             $order->status = "waiting_approval";
             $order->payment_method = $input["payment_method"];
             $order->photo_transfer = $photo_name;

@@ -108,20 +108,20 @@ class RoomsController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  \App\Http\Requests\UpdateRoomsRequest  $request
-     * @param  \App\Models\Rooms  $rooms
+     * @param  \App\Http\Requests\UpdateRoomsRequest $request
+     * @param  \App\Models\Rooms $room
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Rooms $room)
+    public function updateRoom(Request $request, String $roomId)
     {
         $input = $request->all();
 
         $imageNewNames = "";
-        return $this->sendResponse($request->all(), "Success update room");
-
+        
         try {
+            $room = Rooms::where("id", "=", $roomId)->first();
 
-            if ($input["isUpdatePhotos"] ){
+            if ($input["is_update_photos"] === "true" || $input["is_update_photos"] === true){
                 $photos = $request->file('file');
 
                 foreach ($photos as $photo) {
@@ -144,7 +144,13 @@ class RoomsController extends BaseController
             }
             $input["photo_transfer"] = $imageNewNames;
 
-            $room->update($input);
+            $room->update([
+                "number_room" => $input["number_room"],
+                "price" => $input["price"],
+                "description" => $input["description"],
+                "status" => $input["status"],
+                "photos" =>  $imageNewNames,
+            ]);
 
             return $this->sendResponse($room, "Success update room");
         } catch (\Exception $e) {
