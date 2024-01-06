@@ -21,19 +21,40 @@ class OrdersController extends BaseController
         //
     }
 
-    public function getOrdersByStatus(String $status){
+    public function getOrdersByStatus(String $status)
+    {
         try {
             $orders = Orders::where("status", "=", $status)->with(["room", "user"])->orderBy("created_at", "DESC")->get();
-            return $this->sendResponse($orders, "Successfully get order by status ".$status);
+            return $this->sendResponse($orders, "Successfully get order by status " . $status);
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), "Failed fetch orders");
         }
-    } 
+    }
 
     public function getOrdersByUser(String $userId)
     {
         try {
             $orders = Orders::where("user_id", "=", $userId)->with("room")->get();
+            return $this->sendResponse($orders, "Successfully fetch orders!");
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), "Failed fetch orders");
+        }
+    }
+
+    public function checkExpiredOrders()
+    {
+        try {
+            $now = date("Y-m-d h:i:sa");
+            $orders = Orders::where("end_order", "<", $now)->get();
+
+            if (count($orders) > 0) {
+                foreach ($orders as $order) {
+                    $room = Rooms::where("id", "=", $order->room_id)->first();
+                    $room->status = "available";
+                    $room->save();
+                }
+            }
+
             return $this->sendResponse($orders, "Successfully fetch orders!");
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), "Failed fetch orders");
@@ -53,10 +74,10 @@ class OrdersController extends BaseController
             $destinationPath = public_path('/uploads/payment_images');
             $photo->move($destinationPath, $photo_name);
 
-            $room = Rooms::where("room_id", "=", $order->room_id)->first();
-            $room->status = "waiting_approval";
+            $room = Rooms::where("id", "=", $order->room_id)->first();
+            $room->status = "not_available";
             $room->save();
-            
+
             $order->status = "waiting_approval";
             $order->payment_method = $input["payment_method"];
             $order->photo_transfer = $photo_name;
@@ -65,6 +86,19 @@ class OrdersController extends BaseController
             return $this->sendResponse("Success", "Succesfully update payment");
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), "Failed update payment");
+        }
+    }
+
+    public function changeStatusOrder(Request $request)
+    {
+        $input = $request->all();
+        try {
+            $order = Orders::where("id", "=", $input["orderId"])->first();
+            $order->status = $input["status"];
+            $order->save();
+            return $this->sendResponse("Success", "Succesfully change status order");
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), "Failed change status order");
         }
     }
 

@@ -22,6 +22,7 @@ Route::get("all-room", [RoomsController::class, "index"]);
 Route::post("register", [AuthController::class, "register"]);
 Route::post("login-user", [AuthController::class, "loginUser"]);
 Route::post("login-admin", [AuthController::class, "loginAdmin"]);
+Route::get("orders/check-expired", [OrdersController::class, "checkExpiredOrders"]);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource("users", AuthController::class);
@@ -32,4 +33,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post("orders/update-payment", [OrdersController::class, "updatePayment"]);
     Route::get("orders/user/{userId}", [OrdersController::class, "getOrdersByUser"]);
     Route::get("orders/status/{status}", [OrdersController::class, "getOrdersByStatus"]);
+    Route::post("orders/change-status", [OrdersController::class, "changeStatusOrder"]);
 });
