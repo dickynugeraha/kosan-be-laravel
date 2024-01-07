@@ -117,11 +117,11 @@ class RoomsController extends BaseController
         $input = $request->all();
 
         $imageNewNames = "";
-        
+
         try {
             $room = Rooms::where("id", "=", $roomId)->first();
 
-            if ($input["is_update_photos"] === "true" || $input["is_update_photos"] === true){
+            if ($input["is_update_photos"] === "true" || $input["is_update_photos"] === true) {
                 $photos = $request->file('file');
 
                 foreach ($photos as $photo) {
@@ -129,7 +129,7 @@ class RoomsController extends BaseController
                     $photo_name = $photoName . "_" . time() . "." . $photo->getClientOriginalExtension();
                     $destinationPath = public_path('/uploads/room_images');
                     $photo->move($destinationPath, $photo_name);
-    
+
                     $imageNewNames = $imageNewNames . "|" . $photo_name;
                 }
 
@@ -155,7 +155,6 @@ class RoomsController extends BaseController
             return $this->sendResponse($room, "Success update room");
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), "Failed update room");
-
         }
     }
 
@@ -168,6 +167,12 @@ class RoomsController extends BaseController
     public function destroy(Rooms $room)
     {
         try {
+            $oldPhotos = explode("|", $room->photos);
+
+            foreach ($oldPhotos as $photo) {
+                $image = public_path('uploads/room_images/') . $photo;
+                if (file_exists($image)) @unlink($image);
+            }
             $room->delete();
             return $this->sendResponse($room, "Successfully deleted room");
         } catch (\Exception $e) {
